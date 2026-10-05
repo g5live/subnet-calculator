@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101827">
+    <title>Subnet Calculator — Learn the Steps</title>
+    <link rel="stylesheet" href="./style.css">
+    <script type="module" src="./web.js"></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="page-header">
+        <p class="eyebrow">IPv4 · CIDR · LEARN BY WORKING IT OUT</p>
+        <h1>Subnet Calculator</h1>
+        <p class="intro">Enter an address and prefix. Follow the lesson, see each calculation, then check the answer and all sibling subnets.</p>
+      </header>
+
+      <section class="input-card" aria-labelledby="input-title">
+        <div>
+          <p class="section-kicker">START WITH AN ADDRESS</p>
+          <h2 id="input-title">What are you calculating?</h2>
+          <p class="muted">Use any IPv4 address, public or private, with its CIDR prefix. You can also enter an address alone to use a clearly labelled historical Class A/B/C default.</p>
+        </div>
+        <form id="subnet-form" novalidate>
+          <label for="cidr-input">IPv4 address / prefix</label>
+          <div class="input-row">
+            <input id="cidr-input" name="cidr" value="172.19.88.0/24" autocomplete="off" spellcheck="false" aria-describedby="input-help error-message">
+            <button type="submit">Calculate</button>
+          </div>
+          <p id="input-help" class="hint">Examples: <code>192.168.1.70/26</code> · <code>172.19.88.0</code> (assumes legacy Class B /16)</p>
+          <p id="error-message" class="error" role="alert"></p>
+        </form>
+      </section>
+
+      <div id="results" aria-live="polite"></div>
+      <footer>Local learning tool · no data is sent anywhere · IPv4 CIDR prefixes /0–/32</footer>
+    </main>
+  </body>
+</html>

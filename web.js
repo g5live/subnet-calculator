@@ -234,7 +234,7 @@ function render(result) {
   layout.className = 'results-grid';
   output.append(layout);
 
-  const lesson = addPanel(layout, 'lesson', '1', 'Understand the pieces', 'IPv4 has 32 bits. The prefix marks the network portion; the bits left over identify addresses within each subnet.');
+  const lesson = addPanel(layout, 'lesson', '1', 'Understanding the Pieces', 'IPv4 has 32 bits. The prefix marks the network portion; the bits left over identify addresses within each subnet.');
   const lessons = document.createElement('ol');
   lessons.className = 'lesson-list';
   for (const item of [
@@ -250,7 +250,7 @@ function render(result) {
   lesson.append(lessons);
   addPrefixAssumption(lesson, result);
 
-  const calculations = addPanel(layout, 'calculation', '2', 'Choose a calculation view', 'Start with the quick result, then select the level of detail you want.');
+  const calculations = addPanel(layout, 'calculation', '2', 'Calculation Views', 'Quick Calculation by default, with more levels of detail at a click of a button.');
   const selected = result.subnets.find(subnet => subnet.containsInput);
   const views = [
     {
@@ -301,7 +301,7 @@ function render(result) {
   ];
   makeViewGroup(calculations, views, 'quick');
 
-  const answer = addPanel(layout, 'answer', '3', 'The answer', 'This answer stays visible while you switch calculation views.');
+  const answer = addPanel(layout, 'answer', '3', 'The Answer', 'After just the simple things in life? Look no further!');
   const answerTitle = document.createElement('div');
   answerTitle.className = 'answer-title';
   answerTitle.textContent = 'Your network';
@@ -327,7 +327,7 @@ function render(result) {
   answer.append(answerTitle, network, answerGrid);
   addPrefixAssumption(answer, result);
 
-  const ranges = addPanel(layout, 'lesson', '4', 'Subnet ranges', 'Quick View shows the matching subnet and up to two neighbours on each side. Full Subnet shows every sibling range.');
+  const ranges = addPanel(layout, 'lesson', '4', 'Subnet Ranges', 'Quick View shows the matching subnet and nearest neighbours. Full Subnet shows every sibling range.');
   const nearby = getNearbySubnets(result.subnets);
   const quickPanel = document.createElement('div');
   quickPanel.className = 'range-view';

@@ -13,14 +13,16 @@
       <header class="page-header">
         <p class="eyebrow">IPv4 · CIDR · LEARN BY WORKING IT OUT</p>
         <h1>Subnet Calculator</h1>
-        <p class="intro">Enter an address and prefix. Follow the lesson, see each calculation, then check the answer and all sibling subnets.</p>
+        <p class="intro">Enter any address/prefix, follow the lesson, see each calculation, check against all sibling subnets.</p>
       </header>
 
       <section class="input-card" aria-labelledby="input-title">
         <div>
           <p class="section-kicker">START WITH AN ADDRESS</p>
-          <h2 id="input-title">What are you calculating?</h2>
-          <p class="muted">Use any IPv4 address, public or private, with its CIDR prefix. You can also enter an address alone to use a clearly labelled historical Class A/B/C default.</p>
+          <h2 id="input-title">Simply input any address here <b>→</b></h2>
+          <p class="muted">Any public / private IPv4 address, with its CIDR prefix.
+            Also accepts an address alone - a Class A/B/C default will be assumed.</p>
+
         </div>
         <form id="subnet-form" novalidate>
           <label for="cidr-input">IPv4 address / prefix</label>

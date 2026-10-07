@@ -1,37 +1,33 @@
 # IPv4 Subnet Calculator
 
-A small cross-platform IPv4 CIDR learning tool with a terminal version and a browser interface. It uses Node.js built-ins only; no dependency installation is needed.
+A small browser and terminal tool for working through IPv4 subnetting: see the answer, follow the calculation and compare the binary bits.
 
-## Browser calculator
+My contribution was the base outline for a practical networking exercise supporting my wider cybersecurity learning. **The tool is complete for now; no further updates are planned.**
 
-Install Node.js on Windows, macOS or Linux, then open a terminal in this folder and run:
+## Open the browser version
 
-```text
+With Node.js installed, run from this project directory:
+
+```bash
 npm run web
 ```
 
-Open the local address printed by the command (normally `http://127.0.0.1:4173`) in any modern browser. Keep the terminal running while you use the page; press `Ctrl+C` to stop the local server. The calculator does not send entered addresses anywhere.
+Open [the local calculator](http://127.0.0.1:4173), or the address printed in the terminal. Keep the terminal running; Ctrl+C stops the server. No extra packages are needed, and entered addresses stay in the browser.
 
-Section 2 has working buttons for Quick Calculation, Step-by-Step, Binary View and IPv4 Class. Section 3 keeps the final answer visible. Section 4 switches between a Quick View of the matching subnet plus up to two neighbours on either side, and the Full Subnet list. Binary bits are colour-coded by network-prefix versus host position. A bare address uses a labelled, historical Class A/B/C default because the address alone cannot reveal its configured mask.
+## Use the terminal version
 
-## Command line
-
-```text
+```bash
 node subnet.js 192.168.1.70/26
 ```
 
-Or:
+The tool shows the mask, network address, host range and address counts. The browser adds quick/step-by-step calculations, colour-coded binary bits, historical IPv4 classes and matching/neighbouring subnet views.
 
-```text
-npm start -- 10.0.4.1/20
-```
-
-The command line gives the same detailed calculation. IPv4 prefixes `/0` through `/32` are supported, including the special `/31` point-to-point and `/32` host-route cases. You can also enter a bare address: the tool infers the traditional Class A `/8`, B `/16` or C `/24` default and labels it as an assumption. An address alone cannot reveal its actually configured prefix, so supply the real slash prefix whenever known. Class and allocation details are shown separately; special-use addresses are distinguished from private and public/unicast candidates.
+Prefixes `/0` through `/32` are supported, including `/31` point-to-point and `/32` host-route cases. Supply the real prefix when known. A bare address uses a labelled historical Class A/B/C assumption; it cannot reveal the configured mask. A public-address label does not establish allocation or Internet reachability.
 
 ## Check the calculations
 
-```text
+```bash
 npm test
 ```
 
-The tests use Node's built-in test runner; no packages need to be downloaded. The project source can be cloned from GitHub and run on any operating system with Node.js installed.
+Tests use Node's built-in test runner. This is an IPv4 learning calculator, not a network scanner; IPv6 is outside its current scope.

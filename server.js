@@ -7,6 +7,9 @@ const root = dirname(fileURLToPath(import.meta.url));
 const routes = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
+  ['/g5live.svg', ['g5live.svg', 'image/svg+xml']],
+  ['/fonts/Snake.ttf', ['fonts/Snake.ttf', 'font/ttf']],
+  ['/fonts/ArchitectsDaughter-Regular.ttf', ['fonts/ArchitectsDaughter-Regular.ttf', 'font/ttf']],
   ['/style.css', ['style.css', 'text/css; charset=utf-8']],
   ['/web.js', ['web.js', 'text/javascript; charset=utf-8']],
   ['/subnet-core.js', ['subnet-core.js', 'text/javascript; charset=utf-8']],

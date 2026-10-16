@@ -226,3 +226,35 @@ export function calculateSubnet(input) {
     powersExpression: hostBits === 0 ? '1' : Array(hostBits).fill('2').join(' × '),
   };
 }
+
+
+export function splitNetwork(input, requestedCount) {
+  if (typeof input !== 'string' || !input.includes('/')) {
+    throw new Error('Include the starting prefix, for example 192.168.1.0/24.');
+  }
+  if (!Number.isSafeInteger(requestedCount) || requestedCount < 1) {
+    throw new Error('Enter a whole number of networks, starting at 1.');
+  }
+  const parent = calculateSubnet(input);
+  const borrowedBits = Math.ceil(Math.log2(requestedCount));
+  const prefix = parent.prefix + borrowedBits;
+  if (prefix > 32) throw new Error('This block does not contain enough addresses for that many networks.');
+  const subnetCount = 2 ** borrowedBits;
+  const addressesPerSubnet = 2 ** (32 - prefix);
+  // Preview only: never allocate billions of rows for a /0 split.
+  const subnets = Array.from({ length: Math.min(subnetCount, 256) }, (_, index) => {
+    const network = parent.network + index * addressesPerSubnet;
+    const broadcast = network + addressesPerSubnet - 1;
+    return {
+      cidr: `${formatIPv4(network)}/${prefix}`,
+      networkAddress: formatIPv4(network),
+      ...addressRange(network, broadcast, prefix),
+      required: index < requestedCount,
+    };
+  });
+  return { parent, requestedCount, borrowedBits, prefix, subnetCount,
+    spareCount: subnetCount - requestedCount,
+    maskText: formatIPv4(maskForPrefix(prefix)), addressesPerSubnet,
+    usablePerSubnet: prefix <= 30 ? addressesPerSubnet - 2 : addressesPerSubnet,
+    subnets };
+}

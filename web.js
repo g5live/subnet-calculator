@@ -1,9 +1,26 @@
-import { calculateSubnet, formatBinary, getNearbySubnets } from './subnet-core.js';
+import { calculateSubnet, formatBinary, getNearbySubnets, splitNetwork } from './subnet-core.js';
 
 const form = document.querySelector('#subnet-form');
 const input = document.querySelector('#cidr-input');
 const error = document.querySelector('#error-message');
 const output = document.querySelector('#results');
+let mode = 'inspect';
+const countInput = document.querySelector('#network-count');
+for (const choice of ['inspect', 'split']) {
+  document.querySelector(`#${choice}-mode`).addEventListener('click', () => {
+    mode = choice;
+    document.querySelector('#split-options').hidden = mode !== 'split';
+    for (const item of ['inspect', 'split']) {
+      document.querySelector(`#${item}-mode`).setAttribute('aria-pressed', String(mode === item));
+    }
+    document.querySelector('#task-note').textContent = mode === 'split'
+      ? 'Borrow a few host bits → make room for more networks.'
+      : 'Start here → one address, one clear answer.';
+    form.querySelector('button[type="submit"]').textContent = mode === 'split' ? 'Split network' : 'Calculate';
+    form.requestSubmit();
+  });
+}
+
 
 function addMathLine(parent, label, value) {
   const row = document.createElement('div');
@@ -326,6 +343,10 @@ function render(result) {
   }
   answer.append(answerTitle, network, answerGrid);
   addPrefixAssumption(answer, result);
+  layout.prepend(answer);
+  answer.querySelector('.step-number').textContent = '1';
+  lesson.querySelector('.step-number').textContent = '2';
+  calculations.querySelector('.step-number').textContent = '3';
 
   const ranges = addPanel(layout, 'lesson', '4', 'Subnet Ranges', 'Quick View shows the matching subnet and nearest neighbours. Full Subnet shows every sibling range.');
   const nearby = getNearbySubnets(result.subnets);
@@ -353,18 +374,81 @@ function render(result) {
     ? 'Special case: /31 is used for point-to-point links and has no broadcast address; /32 identifies one host route.'
     : 'For ordinary subnets, network and broadcast addresses are included in the total but cannot be assigned to hosts.';
   ranges.append(note);
+  for (const [panel, label] of [[lesson, 'Why this works'], [ranges, 'Compare neighbouring subnets']]) {
+    const details = document.createElement('details');
+    details.className = 'reference-details';
+    const summary = document.createElement('summary');
+    summary.textContent = label;
+    panel.replaceWith(details);
+    details.append(summary, panel);
+  }
+}
+
+function renderSplit(result) {
+  output.replaceChildren();
+  const layout = document.createElement('div');
+  layout.className = 'results-grid';
+  output.append(layout);
+  const answer = addPanel(layout, 'answer', '1', `Use /${result.prefix} for each subnet`,
+    `${result.parent.networkAddress}/${result.parent.prefix} → ${result.subnetCount} equal-sized blocks: ${result.requestedCount} needed, ${result.spareCount} spare.`);
+  addMathLine(answer, 'New subnet mask', result.maskText);
+  addMathLine(answer, 'Addresses in each block', `${result.addressesPerSubnet} total · ${result.usablePerSubnet} usable`);
+  if (result.parent.ip !== result.parent.network) {
+    addMathLine(answer, 'Starting network', `Your address belongs to ${result.parent.networkAddress}/${result.parent.prefix}; we split that entire block.`);
+  }
+  const working = addPanel(layout, 'calculation', '2', 'Follow the split',
+    'Borrow host bits to make more networks. Each extra bit doubles the number of blocks and halves their size.');
+  if (result.borrowedBits > 0) {
+    addMathLine(working, 'One bit fewer is too few', `2^${result.borrowedBits - 1} = ${2 ** (result.borrowedBits - 1)}; you need ${result.requestedCount}.`);
+  }
+  addMathLine(working, 'Enough subnet bits', `2^${result.borrowedBits} = ${result.subnetCount} ≥ ${result.requestedCount}`);
+  addMathLine(working, 'Add bits to the prefix', `/${result.parent.prefix} + ${result.borrowedBits} = /${result.prefix}`);
+  addMathLine(working, 'Count the remaining host bits', `32 − ${result.prefix} = ${32 - result.prefix}; 2^${32 - result.prefix} = ${result.addressesPerSubnet} addresses`);
+  addMathLine(working, 'Usable addresses', result.prefix <= 30
+    ? `${result.addressesPerSubnet} − 2 = ${result.usablePerSubnet}; set aside the network and broadcast addresses.`
+    : result.prefix === 31 ? 'Both addresses are endpoints for a point-to-point link; this is not an ordinary LAN subnet.'
+    : 'Each /32 is a single host route; this is not an ordinary LAN subnet.');
+  const note = document.createElement('p');
+  note.className = 'scribble';
+  note.textContent = 'Enough networks ✓ Now check each one has enough room for your devices.';
+  working.append(note);
+  const ranges = addPanel(layout, 'lesson', '3', 'Your new address blocks',
+    `The whole starting network is divided equally. ${result.spareCount} spare blocks can be kept for later. This is equal-sized subnetting, rather than a mixed-size VLSM plan.`);
+  const wrap = document.createElement('div'); wrap.className = 'table-wrap';
+  const table = document.createElement('table');
+  const head = table.createTHead().insertRow();
+  for (const label of ['Subnet', 'Usable addresses', 'Broadcast', 'Plan']) {
+    const th = document.createElement('th'); th.scope = 'col'; th.textContent = label; head.append(th);
+  }
+  const body = table.createTBody();
+  for (const subnet of result.subnets) {
+    const row = body.insertRow();
+    for (const value of [subnet.cidr, subnet.usable, subnet.broadcast, subnet.required ? 'Needed' : 'Spare']) {
+      row.insertCell().textContent = value;
+    }
+    if (!subnet.required) row.className = 'spare-row';
+  }
+  wrap.append(table); ranges.append(wrap);
+  if (result.subnetCount > result.subnets.length) {
+    const limit = document.createElement('p'); limit.className = 'range-note';
+    limit.textContent = `Preview: first ${result.subnets.length} of ${result.subnetCount} blocks. The calculation covers the full starting network.`;
+    ranges.append(limit);
+  }
 }
 
 form.addEventListener('submit', event => {
   event.preventDefault();
   error.textContent = '';
   try {
-    render(calculateSubnet(input.value));
+    countInput.removeAttribute('aria-invalid');
+    if (mode === 'split') renderSplit(splitNetwork(input.value, Number(countInput.value)));
+    else render(calculateSubnet(input.value));
     input.removeAttribute('aria-invalid');
   } catch (exception) {
     output.replaceChildren();
     error.textContent = exception.message;
     input.setAttribute('aria-invalid', 'true');
+    if (mode === 'split') countInput.setAttribute('aria-invalid', 'true');
   }
 });
 

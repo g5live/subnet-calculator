@@ -2,7 +2,7 @@
 
 A small browser and terminal tool for working through IPv4 subnetting: see the answer, follow the calculation and compare the binary bits.
 
-My contribution was the base outline for a practical networking exercise supporting my wider cybersecurity learning. **The tool is complete for now; no further updates are planned.**
+My contribution was the base outline for a practical networking exercise supporting my wider cybersecurity learning. The browser now includes a notebook-style interface and an equal-sized network splitting walkthrough.
 
 ## Open the browser version
 
@@ -31,3 +31,11 @@ npm test
 ```
 
 Tests use Node's built-in test runner. This is an IPv4 learning calculator, not a network scanner; IPv6 is outside its current scope.
+
+## Split my network
+
+Choose **Split my network**, enter a starting network with an explicit prefix and the number of equal-sized subnets needed. For `192.168.1.0/24` and `9`, the tool borrows four bits: 2³ = 8 is too few; 2⁴ = 16 is enough. The result is sixteen /28 blocks, each with 16 addresses (14 usable for ordinary hosts). Nine are needed and seven are spare.
+
+An address within the starting block is normalised to its network address. This is equal-sized subnetting, not VLSM; check host capacity separately. /31 and /32 results are labelled as point-to-point links and host routes. Large results show the first 256 blocks to keep the page responsive.
+
+Answers come first; detailed reference sections can be expanded when useful. Snake and Architects Daughter are bundled locally with their licence notices. Headings and handwritten notes use these fonts; instructions, addresses and calculations retain readable system/monospace fonts. No third-party font requests are made.

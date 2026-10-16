@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-GB">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,18 +10,22 @@
   </head>
   <body>
     <main class="page-shell">
-      <header class="page-header">
+      <header class="page-header"><img src="./g5live.svg" width="330" height="75" alt="G5LIVE — Build, Understand, Apply" style="max-width:100%;height:auto;margin-bottom:20px">
         <p class="eyebrow">IPv4 · CIDR · LEARN BY WORKING IT OUT</p>
         <h1>Subnet Calculator</h1>
-        <p class="intro">Enter any address/prefix, follow the lesson, see each calculation, check against all sibling subnets.</p>
+        <p class="intro">Find your network, or split it into smaller ones. Start with the answer, then follow the working.</p>
       </header>
 
+      <nav class="mode-switch" aria-label="Calculator task">
+        <button id="inspect-mode" type="button" aria-pressed="true">Understand an address</button>
+        <button id="split-mode" type="button" aria-pressed="false">Split my network</button>
+      </nav>
+      <p class="scribble" id="task-note">Start here → one address, one clear answer.</p>
       <section class="input-card" aria-labelledby="input-title">
         <div>
           <p class="section-kicker">START WITH AN ADDRESS</p>
-          <h2 id="input-title">Simply input any address here <b>→</b></h2>
-          <p class="muted">Any public / private IPv4 address, with its CIDR prefix.
-            Also accepts an address alone - a Class A/B/C default will be assumed.</p>
+          <h2 id="input-title">What network are we working with?</h2>
+          <p class="muted">Use an IPv4 address and prefix, such as 192.168.1.0/24. For splitting, the prefix is required.</p>
 
         </div>
         <form id="subnet-form" novalidate>
@@ -29,6 +33,11 @@
           <div class="input-row">
             <input id="cidr-input" name="cidr" value="172.19.88.0/24" autocomplete="off" spellcheck="false" aria-describedby="input-help error-message">
             <button type="submit">Calculate</button>
+          </div>
+          <div id="split-options" hidden>
+            <label for="network-count">How many equal-sized networks do you need?</label>
+            <input id="network-count" type="number" min="1" step="1" value="9" aria-describedby="split-help error-message">
+            <p id="split-help" class="hint">We find the smallest power of two that gives you enough subnets. Some blocks may be spare.</p>
           </div>
           <p id="input-help" class="hint">Examples: <code>192.168.1.70/26</code> · <code>172.19.88.0</code> (assumes legacy Class B /16)</p>
           <p id="error-message" class="error" role="alert"></p>

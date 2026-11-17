@@ -10,7 +10,18 @@
   </head>
   <body>
     <main class="page-shell">
-      <header class="page-header"><img src="./g5live.svg" width="330" height="75" alt="G5LIVE — Build, Understand, Apply" style="max-width:100%;height:auto;margin-bottom:20px">
+      <header class="page-header">
+        <div class="calculator-header-top">
+          <img src="./g5live.svg" width="330" height="75" alt="G5LIVE — Build, Understand, Apply" style="max-width:100%;height:auto">
+          <div class="ip-version-control">
+            <label class="ip-toggle">
+              <span aria-hidden="true">IPv4</span>
+              <input id="ip-version" type="checkbox" role="switch" aria-label="IPv6 mode">
+              <span aria-hidden="true">IPv6</span>
+            </label>
+            <a class="practice-button" href="./practice.html">Test my knowledge</a>
+          </div>
+        </div>
         <p class="eyebrow">IPv4 · CIDR · LEARN BY WORKING IT OUT</p>
         <h1>Subnet Calculator</h1>
         <p class="intro">Find your network, or split it into smaller ones. Start with the answer, then follow the working.</p>
@@ -20,16 +31,16 @@
         <button id="inspect-mode" type="button" aria-pressed="true">Understand an address</button>
         <button id="split-mode" type="button" aria-pressed="false">Split my network</button>
       </nav>
+
       <p class="scribble" id="task-note">Start here → one address, one clear answer.</p>
       <section class="input-card" aria-labelledby="input-title">
         <div>
           <p class="section-kicker">START WITH AN ADDRESS</p>
           <h2 id="input-title">What network are we working with?</h2>
-          <p class="muted">Use an IPv4 address and prefix, such as 192.168.1.0/24. For splitting, the prefix is required.</p>
-
+          <p class="muted" id="address-guide">Use an IPv4 address and prefix, such as 192.168.1.0/24. For splitting, the prefix is required.</p>
         </div>
         <form id="subnet-form" novalidate>
-          <label for="cidr-input">IPv4 address / prefix</label>
+          <label id="address-label" for="cidr-input">IPv4 address / prefix</label>
           <div class="input-row">
             <input id="cidr-input" name="cidr" value="172.19.88.0/24" autocomplete="off" spellcheck="false" aria-describedby="input-help error-message">
             <button type="submit">Calculate</button>

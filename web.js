@@ -1,26 +1,54 @@
 import { calculateSubnet, formatBinary, getNearbySubnets, splitNetwork } from './subnet-core.js';
+import { calculateIpv6, splitIpv6 } from './ipv6-core.js';
 
 const form = document.querySelector('#subnet-form');
 const input = document.querySelector('#cidr-input');
 const error = document.querySelector('#error-message');
 const output = document.querySelector('#results');
+
 let mode = 'inspect';
 const countInput = document.querySelector('#network-count');
+const versionSelect = document.querySelector('#ip-version');
+const splitOptions = document.querySelector('#split-options');
+const submitButton = form.querySelector('button[type="submit"]');
+const addressGuide = document.querySelector('#address-guide');
+const inputHelp = document.querySelector('#input-help');
+const ipv4Guide = addressGuide.textContent;
+const ipv4Help = [...inputHelp.childNodes];
+const drafts = { '4': input.value, '6': '2001:db8:1234:5678::42/64' };
+
+let ipVersion = '4';
+versionSelect.addEventListener('change', () => {
+  drafts[ipVersion] = input.value;
+  ipVersion = versionSelect.checked ? '6' : '4';
+  input.value = drafts[ipVersion];
+  const isIpv6 = ipVersion === '6';
+  splitOptions.hidden = mode !== 'split';
+  submitButton.textContent = mode === 'split' ? 'Split network' : 'Calculate';
+  document.querySelector('.eyebrow').textContent =
+      `IPv${ipVersion} · CIDR · LEARN BY WORKING IT OUT`;
+  document.querySelector('#address-label').textContent = `IPv${ipVersion} address / prefix`;
+  document.querySelector('footer').textContent =
+      `Local learning tool · no data is sent anywhere · IPv${ipVersion} CIDR prefixes /0–/${isIpv6 ? 128 : 32}`;
+  addressGuide.textContent = isIpv6
+      ? 'Enter an IPv6 address with a prefix. Use :: to shorten a run of zero groups.'
+      : ipv4Guide;
+  if (isIpv6) {
+    inputHelp.textContent = 'Example: 2001:db8:1234:5678::42/64';
+  } else {
+    inputHelp.replaceChildren(...ipv4Help);}
+  form.requestSubmit();});
 for (const choice of ['inspect', 'split']) {
   document.querySelector(`#${choice}-mode`).addEventListener('click', () => {
     mode = choice;
     document.querySelector('#split-options').hidden = mode !== 'split';
     for (const item of ['inspect', 'split']) {
-      document.querySelector(`#${item}-mode`).setAttribute('aria-pressed', String(mode === item));
-    }
+      document.querySelector(`#${item}-mode`).setAttribute('aria-pressed', String(mode === item));}
     document.querySelector('#task-note').textContent = mode === 'split'
       ? 'Borrow a few host bits → make room for more networks.'
       : 'Start here → one address, one clear answer.';
     form.querySelector('button[type="submit"]').textContent = mode === 'split' ? 'Split network' : 'Calculate';
-    form.requestSubmit();
-  });
-}
-
+    form.requestSubmit();});}
 
 function addMathLine(parent, label, value) {
   const row = document.createElement('div');
@@ -32,8 +60,7 @@ function addMathLine(parent, label, value) {
   calculation.className = 'math-value';
   calculation.textContent = value;
   row.append(name, calculation);
-  parent.append(row);
-}
+  parent.append(row);}
 
 function addBinaryLegend(parent, prefix) {
   const legend = document.createElement('div');
@@ -49,8 +76,7 @@ function addBinaryLegend(parent, prefix) {
   hostSwatch.className = 'host-swatch';
   host.append(hostSwatch, document.createTextNode(`Host-address bits (remaining ${32 - prefix}; mask bits are 0)`));
   legend.append(network, host);
-  parent.append(legend);
-}
+  parent.append(legend);}
 
 function addBinaryLine(parent, label, value, prefix) {
   const row = document.createElement('div');
@@ -70,19 +96,15 @@ function addBinaryLine(parent, label, value, prefix) {
       const absoluteIndex = octetIndex * 8 + bitIndex;
       item.className = `binary-bit ${absoluteIndex < prefix ? 'network-bit' : 'host-bit'}`;
       item.textContent = bit;
-      group.append(item);
-    }
+      group.append(item);}
     bits.append(group);
     if (octetIndex < 3) {
       const separator = document.createElement('span');
       separator.className = 'octet-separator';
       separator.textContent = '·';
-      bits.append(separator);
-    }
-  });
+      bits.append(separator);}});
   row.append(name, bits);
-  parent.append(row);
-}
+  parent.append(row);}
 
 function addPanel(parent, kind, number, title, description) {
   const panel = document.createElement('section');
@@ -101,8 +123,7 @@ function addPanel(parent, kind, number, title, description) {
   heading.append(badge, text);
   panel.append(heading);
   parent.append(panel);
-  return panel;
-}
+  return panel;}
 
 function makeViewGroup(panel, views, defaultView) {
   const controls = document.createElement('div');
@@ -127,23 +148,18 @@ function makeViewGroup(panel, views, defaultView) {
       for (const entry of entries) {
         const active = entry.id === view.id;
         entry.button.setAttribute('aria-pressed', String(active));
-        entry.body.hidden = !active;
-      }
-    });
+        entry.body.hidden = !active;}});
     entries.push({ id: view.id, button, body });
     controls.append(button);
-    content.append(body);
-  }
-  panel.append(controls, content);
-}
+    content.append(body);}
+  panel.append(controls, content);}
 
 function addPrefixAssumption(parent, result) {
   if (!result.prefixWasInferred) return;
   const note = document.createElement('p');
   note.className = 'assumption-note';
   note.textContent = `Prefix inferred as /${result.prefix} from the traditional Class ${result.classification.className} default. An address alone does not reveal its configured subnet mask; use the actual prefix if you know it.`;
-  parent.append(note);
-}
+  parent.append(note);}
 
 function addClassView(parent, result) {
   const info = result.classification;
@@ -170,8 +186,7 @@ function addClassView(parent, result) {
     actual.textContent = result.prefixWasInferred
       ? `This input had no slash prefix, so the calculator assumed /${result.prefix}.`
       : `The entered /${result.prefix} is the calculation prefix. It takes precedence over historical Class ${info.className} defaults.`;
-    classCard.append(actual);
-  }
+    classCard.append(actual);}
   parent.append(classCard);
 
   const allocation = document.createElement('div');
@@ -204,8 +219,7 @@ function addClassView(parent, result) {
   iana.rel = 'noopener noreferrer';
   iana.textContent = 'IANA special-purpose registry';
   sources.append(rfc, document.createTextNode(' · '), iana);
-  parent.append(sources);
-}
+  parent.append(sources);}
 
 function createRangeTable(subnets) {
   const wrap = document.createElement('div');
@@ -216,8 +230,7 @@ function createRangeTable(subnets) {
   for (const label of ['Subnet', 'Network address', 'Usable range', 'Broadcast address', 'Input']) {
     const th = document.createElement('th');
     th.textContent = label;
-    headRow.append(th);
-  }
+    headRow.append(th);}
   thead.append(headRow);
   const tbody = document.createElement('tbody');
   for (const subnet of subnets) {
@@ -226,8 +239,7 @@ function createRangeTable(subnets) {
     for (const value of [subnet.cidr, subnet.networkAddress, subnet.usable, subnet.broadcast]) {
       const cell = document.createElement('td');
       cell.textContent = value;
-      row.append(cell);
-    }
+      row.append(cell);}
     const marker = document.createElement('td');
     if (subnet.containsInput) {
       const badge = document.createElement('span');
@@ -235,15 +247,12 @@ function createRangeTable(subnets) {
       badge.textContent = '← YOUR IP IS HERE';
       marker.append(badge);
     } else {
-      marker.textContent = '—';
-    }
+      marker.textContent = '—';}
     row.append(marker);
-    tbody.append(row);
-  }
+    tbody.append(row);}
   table.append(thead, tbody);
   wrap.append(table);
-  return wrap;
-}
+  return wrap;}
 
 function render(result) {
   output.replaceChildren();
@@ -262,25 +271,20 @@ function render(result) {
   ]) {
     const li = document.createElement('li');
     li.textContent = item;
-    lessons.append(li);
-  }
+    lessons.append(li);}
   lesson.append(lessons);
   addPrefixAssumption(lesson, result);
 
   const calculations = addPanel(layout, 'calculation', '2', 'Calculation Views', 'Quick Calculation by default, with more levels of detail at a click of a button.');
   const selected = result.subnets.find(subnet => subnet.containsInput);
   const views = [
-    {
-      id: 'quick', label: 'Quick Calculation', render: panel => {
+    {id: 'quick', label: 'Quick Calculation', render: panel => {
         addMathLine(panel, 'Host bits → addresses', `32 − ${result.prefix} = ${result.hostBits};  2^${result.hostBits} = ${result.totalAddresses} IP addresses`);
         addMathLine(panel, 'Subnet mask', `/${result.prefix} → ${result.maskText}`);
         addMathLine(panel, 'Matching network', `${selected.cidr} · ${selected.usable} · broadcast ${selected.broadcast}`);
         if (result.parentPrefix !== null) addMathLine(panel, 'Subnets in enclosing block', `2^(${result.prefix} − ${result.parentPrefix}) = ${result.subnetCount}`);
-        addPrefixAssumption(panel, result);
-      },
-    },
-    {
-      id: 'steps', label: 'Step-by-Step', render: panel => {
+        addPrefixAssumption(panel, result);},},
+    {id: 'steps', label: 'Step-by-Step', render: panel => {
         const steps = document.createElement('ol');
         steps.className = 'deep-steps';
         const stepData = [
@@ -288,34 +292,24 @@ function render(result) {
           ['Calculate addresses', `2^${result.hostBits} = ${result.powersExpression} = ${result.totalAddresses} addresses per subnet.`],
           ['Build the mask', `The first ${result.prefix} mask bits are 1; the remaining ${result.hostBits} are 0. Dotted mask: ${result.maskText}.`],
           ['Count child subnets', result.parentPrefix === null ? '/0 is the whole IPv4 space.' : `In ${result.parentNetworkAddress}/${result.parentPrefix}, add ${result.prefix} − ${result.parentPrefix} = ${result.subnetBits} subnet bits; 2^${result.subnetBits} = ${result.subnetCount} subnets.`],
-          ['Find this address block', result.boundaryOctet === null ? 'There is no smaller boundary in /0.' : `Block = 256 − ${Number(result.maskText.split('.')[result.boundaryOctet])} = ${result.blockSize}; floor(${result.boundaryAddressValue} ÷ ${result.blockSize}) × ${result.blockSize} = ${result.boundaryNetworkValue}; broadcast boundary = ${result.boundaryNetworkValue} + ${result.blockSize} − 1 = ${result.boundaryBroadcastValue}.`],
-        ];
+          ['Find this address block', result.boundaryOctet === null ? 'There is no smaller boundary in /0.' : `Block = 256 − ${Number(result.maskText.split('.')[result.boundaryOctet])} = ${result.blockSize}; floor(${result.boundaryAddressValue} ÷ ${result.blockSize}) × ${result.blockSize} = ${result.boundaryNetworkValue}; broadcast boundary = ${result.boundaryNetworkValue} + ${result.blockSize} − 1 = ${result.boundaryBroadcastValue}.`],];
         for (const [title, description] of stepData) {
           const li = document.createElement('li');
           const strong = document.createElement('strong');
           strong.textContent = `${title}: `;
           li.append(strong, document.createTextNode(description));
-          steps.append(li);
-        }
+          steps.append(li);}
         panel.append(steps);
-        if (result.prefixWasInferred) addPrefixAssumption(panel, result);
-      },
-    },
-    {
-      id: 'binary', label: 'Binary View', render: panel => {
+        if (result.prefixWasInferred) addPrefixAssumption(panel, result);},},
+    {id: 'binary', label: 'Binary View', render: panel => {
         addBinaryLegend(panel, result.prefix);
         addBinaryLine(panel, 'IP address', result.ipBits, result.prefix);
         addBinaryLine(panel, 'Subnet mask', result.maskBits, result.prefix);
         addBinaryLine(panel, 'Network ID (IP AND mask)', `${result.networkBits} = ${result.networkAddress}`, result.prefix);
         addBinaryLine(panel, 'Host-bit mask', `${formatBinary(result.wildcard)} = ${result.wildcardText}`, result.prefix);
         addBinaryLine(panel, result.prefix <= 30 ? 'Broadcast (host bits set to 1)' : 'Upper value (no broadcast for /31 or /32)', `${result.broadcastBits} = ${result.broadcastAddress}`, result.prefix);
-        if (result.prefixWasInferred) addPrefixAssumption(panel, result);
-      },
-    },
-    {
-      id: 'class', label: 'IPv4 Class', render: panel => addClassView(panel, result),
-    },
-  ];
+        if (result.prefixWasInferred) addPrefixAssumption(panel, result);},},
+    {id: 'class', label: 'IPv4 Class', render: panel => addClassView(panel, result),},];
   makeViewGroup(calculations, views, 'quick');
 
   const answer = addPanel(layout, 'answer', '3', 'The Answer', 'After just the simple things in life? Look no further!');
@@ -339,8 +333,7 @@ function render(result) {
     const strong = document.createElement('strong');
     strong.textContent = value;
     item.append(caption, strong);
-    answerGrid.append(item);
-  }
+    answerGrid.append(item);}
   answer.append(answerTitle, network, answerGrid);
   addPrefixAssumption(answer, result);
   layout.prepend(answer);
@@ -380,9 +373,7 @@ function render(result) {
     const summary = document.createElement('summary');
     summary.textContent = label;
     panel.replaceWith(details);
-    details.append(summary, panel);
-  }
-}
+    details.append(summary, panel);}}
 
 function renderSplit(result) {
   output.replaceChildren();
@@ -394,13 +385,11 @@ function renderSplit(result) {
   addMathLine(answer, 'New subnet mask', result.maskText);
   addMathLine(answer, 'Addresses in each block', `${result.addressesPerSubnet} total · ${result.usablePerSubnet} usable`);
   if (result.parent.ip !== result.parent.network) {
-    addMathLine(answer, 'Starting network', `Your address belongs to ${result.parent.networkAddress}/${result.parent.prefix}; we split that entire block.`);
-  }
+    addMathLine(answer, 'Starting network', `Your address belongs to ${result.parent.networkAddress}/${result.parent.prefix}; we split that entire block.`);}
   const working = addPanel(layout, 'calculation', '2', 'Follow the split',
     'Borrow host bits to make more networks. Each extra bit doubles the number of blocks and halves their size.');
   if (result.borrowedBits > 0) {
-    addMathLine(working, 'One bit fewer is too few', `2^${result.borrowedBits - 1} = ${2 ** (result.borrowedBits - 1)}; you need ${result.requestedCount}.`);
-  }
+    addMathLine(working, 'One bit fewer is too few', `2^${result.borrowedBits - 1} = ${2 ** (result.borrowedBits - 1)}; you need ${result.requestedCount}.`);}
   addMathLine(working, 'Enough subnet bits', `2^${result.borrowedBits} = ${result.subnetCount} ≥ ${result.requestedCount}`);
   addMathLine(working, 'Add bits to the prefix', `/${result.parent.prefix} + ${result.borrowedBits} = /${result.prefix}`);
   addMathLine(working, 'Count the remaining host bits', `32 − ${result.prefix} = ${32 - result.prefix}; 2^${32 - result.prefix} = ${result.addressesPerSubnet} addresses`);
@@ -418,38 +407,71 @@ function renderSplit(result) {
   const table = document.createElement('table');
   const head = table.createTHead().insertRow();
   for (const label of ['Subnet', 'Usable addresses', 'Broadcast', 'Plan']) {
-    const th = document.createElement('th'); th.scope = 'col'; th.textContent = label; head.append(th);
-  }
+    const th = document.createElement('th'); th.scope = 'col'; th.textContent = label; head.append(th);}
   const body = table.createTBody();
   for (const subnet of result.subnets) {
     const row = body.insertRow();
     for (const value of [subnet.cidr, subnet.usable, subnet.broadcast, subnet.required ? 'Needed' : 'Spare']) {
-      row.insertCell().textContent = value;
-    }
-    if (!subnet.required) row.className = 'spare-row';
-  }
+      row.insertCell().textContent = value;}
+    if (!subnet.required) row.className = 'spare-row';}
   wrap.append(table); ranges.append(wrap);
   if (result.subnetCount > result.subnets.length) {
     const limit = document.createElement('p'); limit.className = 'range-note';
     limit.textContent = `Preview: first ${result.subnets.length} of ${result.subnetCount} blocks. The calculation covers the full starting network.`;
-    ranges.append(limit);
-  }
-}
+    ranges.append(limit);}}
+
+function renderIpv6(result) {
+  const layout = document.createElement('div');
+  layout.className = 'results-grid';
+  const answer = addPanel(layout, 'answer', '1', 'The Answer',
+      'The prefix fixes the first bits. The remaining bits define the range.');
+  addMathLine(answer, 'Network', `${result.network}/${result.prefix}`);
+  addMathLine(answer, 'Last address in the block', result.last);
+  addMathLine(answer, 'Total addresses', result.addressCount);
+  const working = addPanel(layout, 'calculation', '2', 'Follow the working',
+      'An IPv6 address has 128 bits.');
+  addMathLine(working, 'Bits after the prefix', `128 − ${result.prefix} = ${result.addressBits}`);
+  addMathLine(working, 'Address count', `2^${result.addressBits} = ${result.addressCount}`);
+  output.replaceChildren(layout);}
+
+function renderIpv6Split(result) {
+  const layout = document.createElement('div');
+  layout.className = 'results-grid';
+  const answer = addPanel(layout, 'answer', '1',
+      `Use /${result.prefix} for each subnet`,
+      `${result.subnetCount} equal blocks: ${result.requestedCount} needed, ${result.spareCount} spare.`);
+  addMathLine(answer, 'Starting block', `${result.parent.network}/${result.parent.prefix}`);
+  addMathLine(answer, 'Addresses per block', result.addressesPerSubnet);
+  const working = addPanel(layout, 'calculation', '2', 'Follow the split',
+      'Each bit added to the prefix doubles the number of blocks.');
+  addMathLine(working, 'Bits added', `2^${result.borrowedBits} = ${result.subnetCount}`);
+  addMathLine(working, 'New prefix', `${result.parent.prefix} + ${result.borrowedBits} = ${result.prefix}`);
+  const ranges = addPanel(layout, 'lesson', '3', 'Your new address blocks',
+      `Showing ${result.subnets.length} of ${result.subnetCount} blocks.`);
+  for (const subnet of result.subnets) {
+    addMathLine(ranges, `${subnet.cidr} · ${subnet.required ? 'Needed' : 'Spare'}`,
+        `Last address: ${subnet.last}`);}
+  output.replaceChildren(layout);}
 
 form.addEventListener('submit', event => {
   event.preventDefault();
   error.textContent = '';
   try {
     countInput.removeAttribute('aria-invalid');
-    if (mode === 'split') renderSplit(splitNetwork(input.value, Number(countInput.value)));
-    else render(calculateSubnet(input.value));
+    if (ipVersion === '6' && mode === 'split') {
+      renderIpv6Split(splitIpv6(input.value, Number(countInput.value)));
+    } else if (ipVersion === '6') {
+      renderIpv6(calculateIpv6(input.value));
+    } else if (mode === 'split') {
+      renderSplit(splitNetwork(input.value, Number(countInput.value)));
+    } else {
+      render(calculateSubnet(input.value));}
     input.removeAttribute('aria-invalid');
   } catch (exception) {
     output.replaceChildren();
     error.textContent = exception.message;
     input.setAttribute('aria-invalid', 'true');
-    if (mode === 'split') countInput.setAttribute('aria-invalid', 'true');
-  }
-});
+    if (ipVersion === '4' && mode === 'split') {
+      countInput.setAttribute('aria-invalid', 'true');}}});
 
 form.requestSubmit();

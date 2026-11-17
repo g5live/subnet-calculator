@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Test my knowledge — Subnet Calculator</title>
+    <link rel="stylesheet" href="./style.css">
+    <script type="module" src="./practice.js"></script>
+</head>
+<body>
+<main class="page-shell">
+    <header class="page-header">
+        <a href="./">Back to calculator</a>
+        <h1>Test my knowledge</h1>
+        <p class="intro">Enter your working as you go, then check the subnet and usable range.</p>
+    </header>
+
+    <section class="input-card practice-card" aria-labelledby="question-title">
+        <div>
+            <button id="random-question" type="button">Random question</button>
+            <div id="question-scenario" aria-live="polite">
+                <h2 id="question-title"></h2>
+                <p id="question-context"></p>
+                <pre id="question-evidence"></pre>
+                <p id="question-task" class="muted"></p>
+            </div>
+        </div>
+
+        <form id="practice-answers">
+            <fieldset>
+                <legend>Step 1 · Find the prefix</legend>
+                <p id="larger-work" hidden><label for="answer-larger">Total addresses reserved for the larger LAN</label>
+                    <input id="answer-larger" type="text" inputmode="numeric" autocomplete="off" aria-describedby="answer-larger-note">
+                    <span id="answer-larger-note" class="answer-note" aria-live="polite"></span></p>
+                <div id="borrow-work" hidden>
+                    <p id="borrow-guide" class="muted"></p>
+                    <div id="borrow-bits" class="practice-bit-row" role="group" aria-label="Bits for the sizing calculation"></div>
+                    <p id="borrow-selection" class="hint" aria-live="polite"></p>
+                    <span id="answer-bits-note" class="answer-note" aria-live="polite"></span>
+                </div>
+                <p><label for="answer-prefix">Prefix length</label>
+                    <input id="answer-prefix" type="text" autocomplete="off" aria-describedby="answer-prefix-note">
+                    <span id="answer-prefix-note" class="answer-note" aria-live="polite"></span></p>
+            </fieldset>
+
+            <fieldset>
+                <legend>Step 2 · Build the mask and find the increment</legend>
+                <div id="parent-mask-work" hidden>
+                    <p class="muted">2a. Mark the last network bit of the starting allocation.</p>
+                    <div id="parent-mask-bits" class="practice-mask" role="group" aria-label="Starting subnet mask bits"></div>
+                    <span id="answer-parent-mask-note" class="answer-note" aria-live="polite"></span>
+                </div>
+                <p id="mask-guide" class="muted"></p>
+                <div id="mask-bits" class="practice-mask" role="group" aria-label="32 subnet mask bits"></div>
+                <span id="answer-mask-note" class="answer-note" aria-live="polite"></span>
+                <p><label for="answer-increment">2b. Block increment in the changing octet</label>
+                    <input id="answer-increment" type="text" autocomplete="off" aria-describedby="answer-increment-note">
+                    <span id="answer-increment-note" class="answer-note" aria-live="polite"></span></p>
+            </fieldset>
+
+            <fieldset>
+                <legend>Step 3 · Find the requested range</legend>
+                <p><label for="answer-network">Network address</label>
+                    <input id="answer-network" type="text" autocomplete="off" aria-describedby="answer-network-note">
+                    <span id="answer-network-note" class="answer-note" aria-live="polite"></span></p>
+                <p><label id="range-end-label" for="answer-broadcast">Broadcast address (end of the block)</label>
+                    <input id="answer-broadcast" type="text" autocomplete="off" aria-describedby="answer-broadcast-note">
+                    <span id="answer-broadcast-note" class="answer-note" aria-live="polite"></span></p>
+                <p><label for="answer-first">First usable address</label>
+                    <input id="answer-first" type="text" autocomplete="off" aria-describedby="answer-first-note">
+                    <span id="answer-first-note" class="answer-note" aria-live="polite"></span></p>
+                <p><label for="answer-last">Last usable address</label>
+                    <input id="answer-last" type="text" autocomplete="off" aria-describedby="answer-last-note">
+                    <span id="answer-last-note" class="answer-note" aria-live="polite"></span></p>
+            </fieldset>
+            <button type="submit">Check working and answers</button>
+            <p id="practice-progress" class="hint" role="status"></p>
+        </form>
+    </section>
+    <details id="practice-working" class="reference-details" hidden>
+        <summary>Show step-by-step calculations</summary>
+        <ol id="practice-steps" class="deep-steps"></ol>
+        <p id="practice-check" class="muted"></p>
+    </details>
+</main>
+</body>
+</html>

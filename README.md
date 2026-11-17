@@ -1,41 +1,30 @@
-# IPv4 Subnet Calculator
+# Subnet Calculator
 
-A small browser and terminal tool for working through IPv4 subnetting: see the answer, follow the calculation and compare the binary bits.
+A small learning tool for working out IP subnets. Use the calculator to see the answer and follow the maths, or try a practice question and work it out yourself.
 
-My contribution was the base outline for a practical networking exercise supporting my wider cybersecurity learning. The browser now includes a notebook-style interface and an equal-sized network splitting walkthrough.
+## Run it locally
 
-## Open the browser version
-
-With Node.js installed, run from this project directory:
+With Node.js installed, open a terminal in this folder and run:
 
 ```bash
 npm run web
 ```
 
-Open [the local calculator](http://127.0.0.1:4173), or the address printed in the terminal. Keep the terminal running; Ctrl+C stops the server. No extra packages are needed, and entered addresses stay in the browser.
+Open [the local calculator](http://127.0.0.1:4173) or the address printed in the terminal. No extra packages are needed. Keep the terminal open while you use the app; press Ctrl+C to stop it.
 
-## Use the terminal version
+## What you can do
+
+- **Understand an address:** switch between IPv4 and IPv6 to find the network and address range. Try `192.168.1.70/26` or `2001:db8:1234:5678::42/64`.
+- **Split my network:** enter a starting network and the number of equal-sized subnets you need. See the new prefix, which blocks you need and how many are spare.
+- **Test my knowledge:** work through 36 guided IPv4 scenarios. Enter the prefix, select the mask bits, find the increment and calculate the range. Check each part and compare your method with the worked solution.
+
+Use the actual prefix when you know it. A bare IPv4 address uses a labelled historical assumption where applicable; IPv6 and network splitting require an explicit prefix. The app calculates address ranges locally and does not scan the network.
+
+## Terminal and tests
+
+The terminal calculator supports IPv4.
 
 ```bash
 node subnet.js 192.168.1.70/26
-```
-
-The tool shows the mask, network address, host range and address counts. The browser adds quick/step-by-step calculations, colour-coded binary bits, historical IPv4 classes and matching/neighbouring subnet views.
-
-Prefixes `/0` through `/32` are supported, including `/31` point-to-point and `/32` host-route cases. Supply the real prefix when known. A bare address uses a labelled historical Class A/B/C assumption; it cannot reveal the configured mask. A public-address label does not establish allocation or Internet reachability.
-
-## Check the calculations
-
-```bash
 npm test
 ```
-
-Tests use Node's built-in test runner. This is an IPv4 learning calculator, not a network scanner; IPv6 is outside its current scope.
-
-## Split my network
-
-Choose **Split my network**, enter a starting network with an explicit prefix and the number of equal-sized subnets needed. For `192.168.1.0/24` and `9`, the tool borrows four bits: 2³ = 8 is too few; 2⁴ = 16 is enough. The result is sixteen /28 blocks, each with 16 addresses (14 usable for ordinary hosts). Nine are needed and seven are spare.
-
-An address within the starting block is normalised to its network address. This is equal-sized subnetting, not VLSM; check host capacity separately. /31 and /32 results are labelled as point-to-point links and host routes. Large results show the first 256 blocks to keep the page responsive.
-
-Answers come first; detailed reference sections can be expanded when useful. Snake and Architects Daughter are bundled locally with their licence notices. Headings and handwritten notes use these fonts; instructions, addresses and calculations retain readable system/monospace fonts. No third-party font requests are made.
